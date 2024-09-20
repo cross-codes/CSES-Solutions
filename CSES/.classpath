@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" path="Additional Problems"/>
+	<classpathentry kind="src" path="Geometry"/>
+	<classpathentry kind="src" path="Introductory Problems"/>
+	<classpathentry kind="src" path="Mathematics"/>
+	<classpathentry kind="src" path="Range Queries"/>
+	<classpathentry kind="src" path="Sorting and Searching"/>
+	<classpathentry kind="output" path=".bin"/>
+</classpath>

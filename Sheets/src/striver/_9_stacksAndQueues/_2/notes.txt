@@ -1,0 +1,40 @@
+Steps to convert between various formats:
+
+(1) Infix to Postfix expression
+  (i) Write a function to determine priority orders of various operators and return increasing numbers, -1 for non-operators
+  (ii) Create a new instance of the StringBuilder class to store the postfix expression and a stack to store symbols
+  (iii) Iterate through the infix expression:
+    (a) If you encounter (, simply push it into the stack
+    (b) Else if you encounter a character or a digit, append it to the result
+    (c) Else if you encounter ), keep popping the stack till you encounter the (nearest) (, and append them all to the result.
+        Then pop away the (, do not append this to the result
+    (d) Otherwise, you have encountered an operator.
+        * While the stack is not empty, and the preference of the operator is lesser than or equal to the preference of the top
+        of the stack, keep popping the stack and append it to the result.
+        * Then, push the new operator to the stack.
+  (iv) Once the loop is finished, empty the stack and keep appending the elements to the result
+  (v) Convert the result to a string and return it.
+
+(2) Infix to Prefix expression
+  (i) Reverse the infix expression
+  (ii) Replace all '(' with ')' and ')' with '('
+  (iii) Convert this new expression to postfix using method (1)
+  (iv) Reverse the string and return it
+
+(3) Prefix to Infix expression
+  (i) Write a function that determines if a given character is an operator
+  (ii) Create a new instance of a stack to store Strings
+  (iii) Iterate through the prefix expression backwards
+    (a) If you encounter an operand, just push the equivalent String of the character
+    (b) If you encounter an operator, pop the latest two strings in the stack, and push this expression into
+        the stack: "(<str1><operator><str2>)"
+  (iv) The stack will have only one element. Return this
+
+(4) Postfix to Infix expression
+  (i) Write a function that determines if a given character is an operator
+  (ii) Create a new instance of a stack to store Strings
+  (iii) Iterate through the postfix expression
+    (a) If you encounter an operand, just push the equivalent String of the character
+    (b) If you encounter an operator, pop the latest two strings in the stack, and push this expression into
+        the stack "(<str2><operator><str1>)"
+  (iv) The stack will have only one element. Return this

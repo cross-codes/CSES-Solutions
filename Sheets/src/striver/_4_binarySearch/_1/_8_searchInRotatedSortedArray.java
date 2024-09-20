@@ -1,0 +1,51 @@
+package striver._4_binarySearch._1;
+
+public class _8_searchInRotatedSortedArray {
+  static void reverse(int[] arr, int idxStart, int idxEnd) {
+    for (; idxStart < idxEnd; idxStart++, idxEnd--) {
+      int temp = arr[idxStart];
+      arr[idxStart] = arr[idxEnd];
+      arr[idxEnd] = temp;
+    }
+  }
+
+  public static int search(int[] nums, int T) {
+    int pivot_idx = -1, n = nums.length;
+    int sorted_idx = -1;
+    int[] arr = nums.clone();
+
+    // Find the pivot
+    for (int idx = 1; idx < n; idx++) {
+      if (nums[idx] < nums[idx - 1]) {
+        pivot_idx = idx;
+        break;
+      }
+    }
+
+    if (pivot_idx != -1) {
+      // Sort the array now
+      reverse(nums, 0, pivot_idx - 1);
+      reverse(nums, pivot_idx, n - 1);
+      reverse(nums, 0, n - 1);
+    }
+
+    // Find the target:
+    int L = 0, R = n - 1, m;
+    while (L != R) {
+      if ((L + R) % 2 != 0) m = (L + R) / 2 + 1;
+      else m = (L + R) / 2;
+
+      if (nums[m] > T) R = m - 1;
+      else L = m;
+    }
+    if (nums[L] == T) sorted_idx = L;
+    else return -1;
+
+    // If it is already sorted
+    if (pivot_idx == -1) return L;
+
+    if (T > arr[0]) return sorted_idx - n + pivot_idx;
+    else if (T < arr[0]) return sorted_idx + pivot_idx;
+    else return 0;
+  }
+}
