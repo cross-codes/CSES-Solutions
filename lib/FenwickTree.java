@@ -4,30 +4,30 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 
 public class FenwickTree {
-  public long[] tree;
-  private int N;
+  public final long[] arr;
+  private final long[] tree;
+  private final int N;
 
-  public FenwickTree(int n) throws IOException {
-    if (n <= 0) {
-      throw new IOException("Illegal array length");
-    }
-    this.N = n;
+  public FenwickTree(int n) {
+    this.arr = new long[n + 1];
     this.tree = new long[n + 1];
+    this.N = n;
   }
 
-  public void update(int pos, long val) {
-    for (int i = pos; i <= this.N; i += ((i) & (-i))) this.tree[i] += val;
+  public void add(int k, long x) {
+    while (k <= this.N) {
+      this.tree[k] += x;
+      k += Integer.lowestOneBit(k);
+    }
   }
 
-  public long sum1ToPos(int pos) {
-    long res = 0;
-    for (int i = pos; i > 0; i -= ((i) & (-i))) res += this.tree[i];
-
-    return res;
-  }
-
-  public long rangeSum(int a, int b) {
-    return sum1ToPos(b) - sum1ToPos(a - 1);
+  public long sumq(int k) {
+    long s = 0L;
+    while (k >= 1) {
+      s += this.tree[k];
+      k -= Integer.lowestOneBit(k);
+    }
+    return s;
   }
 
   public static void main(String[] args) throws IOException {
@@ -39,7 +39,7 @@ public class FenwickTree {
 
     String[] tokens = in.readLine().split(" ");
 
-    for (int i = 0; i < tokens.length; i++) bit.update(i + 1, Integer.parseInt(tokens[i]));
+    for (int i = 0; i < tokens.length; i++) bit.add(i + 1, Integer.parseInt(tokens[i]));
 
     final StringBuilder sb = new StringBuilder();
     sb.append("Fenwick tree: [");
