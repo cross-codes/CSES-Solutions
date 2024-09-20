@@ -1,9 +1,164 @@
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.InputMismatchException;
+import java.util.Random;
 
-public class StandardOutputWriter {
+class Codechef implements Runnable {
+
+  InputStream in;
+  StandardOutputWriter out;
+  private byte[] inbuf = new byte[1024];
+  public int lenbuf = 0, ptrbuf = 0;
+  static final Random random = new Random();
+
+  public static void main(String[] args) {
+    new Thread(null, new Codechef(), "", 256 * (1L << 20)).start();
+  }
+
+  @Override
+  public void run() {
+    try {
+      in = System.in;
+      out = new StandardOutputWriter(System.out);
+      solve();
+      in.close();
+      out.flush();
+    } catch (Throwable t) {
+      t.printStackTrace(System.err);
+      System.exit(-1);
+    }
+  }
+
+  int readByte() {
+    if (lenbuf == -1) throw new InputMismatchException();
+    if (ptrbuf >= lenbuf) {
+      ptrbuf = 0;
+      try {
+        lenbuf = in.read(inbuf);
+      } catch (IOException e) {
+        throw new InputMismatchException();
+      }
+      if (lenbuf <= 0) return -1;
+    }
+    return inbuf[ptrbuf++];
+  }
+
+  boolean isSpaceChar(int c) {
+    return !(c >= 33 && c <= 126);
+  }
+
+  int skip() {
+    int b;
+    while ((b = readByte()) != -1 && isSpaceChar(b))
+      ;
+    return b;
+  }
+
+  char rc() {
+    return (char) skip();
+  }
+
+  String rs() {
+    int b = skip();
+    StringBuilder sb = new StringBuilder();
+    while (!(isSpaceChar(b))) {
+      sb.appendCodePoint(b);
+      b = readByte();
+    }
+    return sb.toString();
+  }
+
+  char[] rs(int n) {
+    char[] buf = new char[n];
+    int b = skip(), p = 0;
+    while (p < n && !(isSpaceChar(b))) {
+      buf[p++] = (char) b;
+      b = readByte();
+    }
+    return n == p ? buf : Arrays.copyOf(buf, p);
+  }
+
+  int ri() {
+    return (int) rl();
+  }
+
+  long rl() {
+    long num = 0;
+    int b;
+    boolean minus = false;
+    while ((b = readByte()) != -1 && !((b >= '0' && b <= '9') || b == '-'))
+      ;
+    if (b == '-') {
+      minus = true;
+      b = readByte();
+    }
+
+    while (true) {
+      if (b >= '0' && b <= '9') {
+        num = num * 10 + (b - '0');
+      } else {
+        return minus ? -num : num;
+      }
+      b = readByte();
+    }
+  }
+
+  double rd() {
+    return Double.parseDouble(rs());
+  }
+
+  int[] ra(int n) {
+    int[] a = new int[n];
+    for (int i = 0; i < n; i++) a[i] = ri();
+    return a;
+  }
+
+  long[] ral(int n) {
+    long[] a = new long[n];
+    for (int i = 0; i < n; i++) a[i] = rl();
+    return a;
+  }
+
+  void solve() throws IOException {
+    int t = ri();
+    final StringBuilder sb = new StringBuilder(t);
+    final HashSet<Character> vowels =
+        new HashSet<>() {
+          {
+            add('a');
+            add('e');
+            add('i');
+            add('o');
+            add('u');
+          }
+        };
+    iter:
+    while (t-- > 0) {
+      int n = ri();
+      String s = rs();
+      int segment = 0;
+      for (int i = 0; i < n; i++) {
+        if (!vowels.contains(s.charAt(i))) {
+          segment++;
+        } else {
+          segment = 0;
+        }
+        if (segment == 4) {
+          sb.append("NO\n");
+          continue iter;
+        }
+      }
+      sb.append("YES\n");
+    }
+    out.print(sb.toString());
+  }
+
+  static class StandardOutputWriter {
     private static final int BUFFER_SIZE = 1 << 16;
     private final byte[] buf = new byte[BUFFER_SIZE];
     private final OutputStream out;
@@ -291,3 +446,4 @@ public class StandardOutputWriter {
       return writeln();
     }
   }
+}
