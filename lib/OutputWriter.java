@@ -1,24 +1,16 @@
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
 public class OutputWriter {
   private static final int BUFFER_SIZE = 1 << 16;
-  private final byte[] buf = new byte[BUFFER_SIZE];
+  private final byte[] buf;
   private final OutputStream out;
-  private int ptr = 0;
+  private int ptr;
 
   public OutputWriter(OutputStream os) {
     this.out = os;
-  }
-
-  public OutputWriter(String path) {
-    try {
-      this.out = new FileOutputStream(path);
-    } catch (FileNotFoundException e) {
-      throw new RuntimeException("StandardOutputWriter");
-    }
+    this.buf = new byte[BUFFER_SIZE];
+    this.ptr = 0;
   }
 
   public OutputWriter write(byte b) {
