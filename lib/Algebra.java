@@ -1,7 +1,3 @@
-interface Procedure {
-  void run();
-}
-
 public class Algebra {
   private static final double EPSILON = 1E-6;
 
