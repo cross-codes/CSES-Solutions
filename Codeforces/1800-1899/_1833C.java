@@ -4,13 +4,13 @@ import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.InputMismatchException;
 
-public class _2014B implements Runnable {
+public class _1833C implements Runnable {
 
   InputReader in;
   OutputWriter out;
 
   public static void main(String[] args) {
-    new Thread(null, new _2014B(), "", 256 * (1L << 20)).start();
+    new Thread(null, new _1833C(), "", 256 * (1L << 20)).start();
   }
 
   @Override
@@ -32,28 +32,46 @@ public class _2014B implements Runnable {
     final StringBuilder sb = new StringBuilder(t);
     while (t-- > 0) {
       int n = in.nextInt(), k = in.nextInt();
-      if ((n & 1) == 0) {
-        if ((k & 1) == 0) {
-          if (((k / 2) + k) % 2 == 0) sb.append("YES\n");
-          else sb.append("NO\n");
-        } else {
-          if ((((k - 1) / 2) + k + 1) % 2 == 0) sb.append("YES\n");
-          else sb.append("NO\n");
+      int minDiff = Integer.MAX_VALUE;
+      int[] arr = in.readIntegerArray(n);
+      if (k != 4) {
+        for (int i = 0; i < n; i++) {
+          int num = arr[i];
+          for (int j = 0; j < k; j++) {
+            if ((num + j) % k == 0) {
+              minDiff = Math.min(minDiff, j);
+              break;
+            }
+          }
         }
       } else {
-        if ((k & 1) == 0) {
-          if (((k / 2) + k) % 2 == 0) sb.append("YES\n");
-          else sb.append("NO\n");
+        for (int i = 0; i < n; i++) {
+          int num = arr[i];
+          if (num % 4 == 0) {
+            minDiff = 0;
+            break;
+          } else if ((num + 1) % 4 == 0) {
+            minDiff = 1;
+          }
+        }
+        if (n == 1) {
+          for (int i = 0; i < 4; i++) {
+            if ((arr[0] + i) % 4 == 0) minDiff = Math.min(minDiff, i);
+          }
         } else {
-          if ((((k + 1) / 2) + k - 1) % 2 == 0) sb.append("YES\n");
-          else sb.append("NO\n");
+          int evenCnt = 0;
+          for (int i = 0; i < n; i++) {
+            if (arr[i] % 2 == 0) evenCnt++;
+          }
+          minDiff = Math.min(Math.max(0, 2 - evenCnt), minDiff);
         }
       }
+      sb.append(minDiff).append("\n");
     }
     out.print(sb.toString());
   }
 
-  interface Procedure {
+  static interface Procedure {
     void run();
   }
 
