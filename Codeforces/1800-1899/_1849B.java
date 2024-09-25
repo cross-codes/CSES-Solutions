@@ -4,8 +4,6 @@ import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.InputMismatchException;
-import java.util.Objects;
-import java.util.PriorityQueue;
 
 public class _1849B implements Runnable {
 
@@ -33,62 +31,29 @@ public class _1849B implements Runnable {
   void solve() {
     int t = in.nextInt();
     final StringBuilder sb = new StringBuilder(t);
-    final Comparator<Pair<Integer, Integer>> QUEUE_ORDER =
-        new Comparator<Pair<Integer, Integer>>() {
+    final Comparator<int[]> QUEUE_ORDER =
+        new Comparator<int[]>() {
           @Override
-          public int compare(Pair<Integer, Integer> a, Pair<Integer, Integer> b) {
-            int cmp = Integer.compare(b.key, a.key);
-            if (cmp == 0) return Integer.compare(a.value, b.value);
+          public int compare(int[] a, int[] b) {
+            int cmp = Integer.compare(a[0], b[0]);
+            if (cmp == 0) return Integer.compare(b[1], a[1]);
             else return cmp;
           }
         };
     while (t-- > 0) {
       int n = in.nextInt(), k = in.nextInt();
-      PriorityQueue<Pair<Integer, Integer>> queue = new PriorityQueue<>(QUEUE_ORDER);
-      for (int i = 1; i < n + 1; i++) {
+      int[][] arr = new int[n][2];
+      for (int i = 0; i < n; i++) {
         int num = in.nextInt();
-        queue.add(new Pair<Integer, Integer>(num, i));
+        if (num % k != 0) {
+          arr[i] = new int[] {num % k, i + 1};
+        } else arr[i] = new int[] {k, i + 1};
       }
-      while (!queue.isEmpty()) {
-        Pair<Integer, Integer> max = queue.poll();
-        max.key -= k;
-        if (max.key <= 0) sb.append(max.value).append(" ");
-        else queue.add(max);
-      }
+      Arrays.sort(arr, QUEUE_ORDER);
+      for (int i = 0; i < n; i++) sb.append(arr[n - i - 1][1]).append(" ");
       sb.append("\n");
     }
     out.print(sb.toString());
-  }
-
-  static class Pair<K extends Comparable<K>, V extends Comparable<V>>
-      implements Comparable<Pair<K, V>> {
-    public K key;
-    public V value;
-
-    public Pair(K key, V value) {
-      this.key = key;
-      this.value = value;
-    }
-
-    @Override
-    public int compareTo(Pair<K, V> other) {
-      int cmp = this.key.compareTo(other.key);
-      if (cmp == 0) return this.value.compareTo(other.value);
-      else return cmp;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      if (this == o) return true;
-      if (!(o instanceof Pair)) return false;
-      Pair<?, ?> pair = (Pair<?, ?>) o;
-      return Objects.equals(this.key, pair.key) && Objects.equals(this.value, pair.value);
-    }
-
-    @Override
-    public int hashCode() {
-      return Objects.hash(this.key, this.value);
-    }
   }
 
   static interface Procedure {
