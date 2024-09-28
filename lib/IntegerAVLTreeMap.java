@@ -1,11 +1,14 @@
+@FunctionalInterface
 interface IntegerBiConsumer {
   void accept(int t, int u);
 }
 
+@FunctionalInterface
 interface IntegerBiFunction {
   int apply(int a, int b);
 }
 
+@FunctionalInterface
 interface IntegerXBiConsumer<U> {
   void accept(int t, U u);
 }
