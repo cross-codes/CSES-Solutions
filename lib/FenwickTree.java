@@ -2,6 +2,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.util.Arrays;
 
 public class FenwickTree {
   public final long[] arr;
@@ -41,13 +42,7 @@ public class FenwickTree {
 
     for (int i = 0; i < tokens.length; i++) bit.add(i + 1, Integer.parseInt(tokens[i]));
 
-    final StringBuilder sb = new StringBuilder();
-    sb.append("Fenwick tree: [");
-
-    for (int i = 1; i < n; i++) sb.append(bit.tree[i]).append(", ");
-    sb.append(bit.tree[n]).append("]");
-
-    out.print(sb.toString());
+    out.print(Arrays.toString(bit.tree));
     out.close();
   }
 }
