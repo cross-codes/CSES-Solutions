@@ -4,13 +4,13 @@ import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.InputMismatchException;
 
-public class FibonacciNumbers implements Runnable {
+public class _402A implements Runnable {
 
   InputReader in;
   OutputWriter out;
 
   public static void main(String[] args) {
-    new Thread(null, new FibonacciNumbers(), "", 256 * (1L << 20)).start();
+    new Thread(null, new _402A(), "", 256 * (1L << 20)).start();
   }
 
   @Override
@@ -27,29 +27,31 @@ public class FibonacciNumbers implements Runnable {
     }
   }
 
-  void solve() {
-    long n = in.nextLong();
-    long MOD = (long) 1e9 + 7;
-    if (n == 1L) out.println(1L);
-    else {
-      long a, b, p, q;
-      a = q = 1;
-      b = p = 0;
-      while (n > 0) {
-        if ((n & 1) == 0) {
-          long qq = (q % MOD) * (q % MOD);
-          q = (2 * p % MOD * q % MOD + qq % MOD) % MOD;
-          p = ((p % MOD) * (p % MOD) + qq % MOD) % MOD;
-          n /= 2;
-        } else {
-          long aq = (a % MOD) * (q % MOD);
-          a = (b % MOD) * (q % MOD) + (aq % MOD) + ((a % MOD) * (p % MOD)) % MOD;
-          b = ((b % MOD) * (p % MOD) + (aq % MOD) % MOD);
-          n -= 1;
-        }
+  int cnt = 0;
+
+  void dfs(int j, boolean v, boolean[] u, int[][] arr) {
+    u[j] = true;
+    cnt++;
+    for (int i = 0; i < u.length; i++) {
+      if (!u[i] && ((v && arr[i][j] != 0) || (!v && arr[j][i] != 0))) {
+        dfs(i, v, u, arr);
       }
-      out.println(b % MOD);
     }
+  }
+
+  void solve() {
+    int n = in.nextInt();
+    boolean u[] = new boolean[n];
+    int[][] arr = new int[n][n];
+    for (int i = 0; i < n; i++) {
+      for (int j = 0; j < n; j++) {
+        arr[i][j] = in.nextInt();
+      }
+    }
+    dfs(0, true, u, arr);
+    Arrays.fill(u, false);
+    dfs(0, false, u, arr);
+    out.println(cnt == 2 * n ? "YES" : "NO");
   }
 
   @FunctionalInterface

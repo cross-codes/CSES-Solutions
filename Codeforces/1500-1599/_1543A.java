@@ -362,7 +362,6 @@ public class _1543A implements Runnable {
     public StandardOutputWriter print(String s) {
       return write(s);
     }
-
     public StandardOutputWriter print(int x) {
       return write(x);
     }
