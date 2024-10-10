@@ -13,13 +13,13 @@ public class FrequencyRBMap extends TreeMap<Integer, Integer> {
     super(comparator);
   }
 
-  public boolean incrementOrAdd(Integer key) {
+  public boolean increaseOrAdd(Integer key) {
     if (key == null) return false;
     this.merge(key, 1, Integer::sum);
     return true;
   }
 
-  public boolean decrementOrRemove(Integer key) {
+  public boolean decreaseOrRemove(Integer key) {
     if (key == null) return false;
     return this.computeIfPresent(key, (k, v) -> v == 1 ? null : v - 1) != null;
   }

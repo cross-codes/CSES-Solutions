@@ -38,8 +38,8 @@ public class Towers implements Runnable {
     for (int i = 0; i < n; i++) {
       int k = in.nextInt();
       Integer key = towers.higherKey(k);
-      towers.decrementOrRemove(key);
-      towers.incrementOrAdd(k);
+      towers.decreaseOrRemove(key);
+      towers.increaseOrAdd(k);
     }
     out.append(towers.size()).appendNewLine();
   }
@@ -58,13 +58,13 @@ public class Towers implements Runnable {
       super(comparator);
     }
 
-    public boolean incrementOrAdd(Integer key) {
+    public boolean increaseOrAdd(Integer key) {
       if (key == null) return false;
       this.merge(key, 1, Integer::sum);
       return true;
     }
 
-    public boolean decrementOrRemove(Integer key) {
+    public boolean decreaseOrRemove(Integer key) {
       if (key == null) return false;
       return this.computeIfPresent(key, (k, v) -> v == 1 ? null : v - 1) != null;
     }
