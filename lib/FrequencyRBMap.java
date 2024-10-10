@@ -44,4 +44,9 @@ public class FrequencyRBMap extends TreeMap<Integer, Integer> {
         .map(Map.Entry::getKey)
         .collect(Collectors.toSet());
   }
+
+  @Override
+  public int size() {
+    return this.values().stream().mapToInt(Integer::intValue).sum();
+  }
 }

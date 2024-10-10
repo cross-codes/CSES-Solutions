@@ -4,13 +4,13 @@ import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.InputMismatchException;
 
-public class TwoSets implements Runnable {
+public class ReadingBooks implements Runnable {
 
   InputReader in;
   OutputWriter out;
 
   public static void main(String[] args) {
-    new Thread(null, new TwoSets(), "", 256 * (1L << 20)).start();
+    new Thread(null, new ReadingBooks(), "", 256 * (1L << 20)).start();
   }
 
   @Override
@@ -29,68 +29,15 @@ public class TwoSets implements Runnable {
 
   void solve() throws IOException {
     int n = in.nextInt();
-    final StringBuilder sb = new StringBuilder();
-    switch (n) {
-      case 1:
-      case 2:
-        sb.append("NO\n");
-        break;
-      case 3:
-        sb.append("YES\n2\n1 2\n1\n3\n");
-        break;
+    long sum = 0, max = Long.MIN_VALUE;
 
-      case 4:
-        sb.append("YES\n2\n1 4\n2\n2 3\n");
-        break;
-
-      default:
-        if ((n - 3) % 4 == 0) {
-          sb.append("YES\n");
-          StringBuilder row1 = new StringBuilder("1 2 ");
-          StringBuilder row2 = new StringBuilder("3 ");
-          int x = 4, y = n;
-          int r1len = 2, r2len = 1;
-          while (x < y) {
-            row1.append(x).append(" ").append(y).append(" ");
-            x++;
-            y--;
-            r1len += 2;
-            if (x < y) {
-              row2.append(x).append(" ").append(y).append(" ");
-            }
-            x++;
-            y--;
-            r2len += 2;
-          }
-          row1.append("\n");
-          row2.append("\n");
-          sb.append(r1len).append("\n").append(row1).append(r2len).append("\n").append(row2);
-        } else if (n % 4 == 0) {
-          sb.append("YES\n");
-          StringBuilder row1 = new StringBuilder();
-          StringBuilder row2 = new StringBuilder();
-          int x = 1, y = n;
-          int r1len = 0, r2len = 0;
-          while (x < y) {
-            row1.append(x).append(" ").append(y).append(" ");
-            x++;
-            y--;
-            r1len += 2;
-            if (x < y) {
-              row2.append(x).append(" ").append(y).append(" ");
-            }
-            x++;
-            y--;
-            r2len += 2;
-          }
-          row1.append("\n");
-          row2.append("\n");
-          sb.append(r1len).append("\n").append(row1).append(r2len).append("\n").append(row2);
-        } else sb.append("NO\n");
-        break;
+    for (int i = 0; i < n; i++) {
+      long t = in.nextLong();
+      sum += t;
+      max = Math.max(max, t);
     }
 
-    out.append(sb.toString());
+    out.append(Math.max(sum, 2 * max)).appendNewLine();
   }
 
   @FunctionalInterface
@@ -221,14 +168,14 @@ public class TwoSets implements Runnable {
 
     public OutputWriter append(String s) throws IOException {
       int length = s.length();
-      this.ensureCapacity(length);
-      for (int i = 0; i < length; i++) this.buffer[this.pos++] = (byte) s.charAt(i);
+      ensureCapacity(length);
+      for (int i = 0; i < length; i++) this.buffer[pos++] = (byte) s.charAt(i);
       return this;
     }
 
     public OutputWriter append(byte[] bytes) throws IOException {
       if (BUFFER_SIZE - this.pos < bytes.length) {
-        this.flush();
+        flush();
         if (bytes.length > BUFFER_SIZE) {
           this.out.write(bytes, 0, bytes.length);
           return this;
@@ -240,8 +187,8 @@ public class TwoSets implements Runnable {
 
     public OutputWriter append(byte[] bytes, int from, int to) throws IOException {
       int length = to - from;
-      if (BUFFER_SIZE - this.pos < length) {
-        this.flush();
+      if (BUFFER_SIZE - pos < length) {
+        flush();
         if (length > BUFFER_SIZE) {
           this.out.write(bytes, from, length);
           return this;
@@ -252,35 +199,35 @@ public class TwoSets implements Runnable {
     }
 
     public OutputWriter append(char c) throws IOException {
-      this.ensureCapacity(1);
+      ensureCapacity(1);
       this.buffer[this.pos++] = (byte) c;
       return this;
     }
 
     public OutputWriter append(int i) throws IOException {
-      return this.append(Integer.toString(i));
+      return append(Integer.toString(i));
     }
 
     public OutputWriter append(long l) throws IOException {
-      return this.append(Long.toString(l));
+      return append(Long.toString(l));
     }
 
     public OutputWriter append(double d) throws IOException {
-      return this.append(Double.toString(d));
+      return append(Double.toString(d));
     }
 
     public void appendNewLine() throws IOException {
-      this.ensureCapacity(1);
+      ensureCapacity(1);
       this.buffer[this.pos++] = '\n';
     }
 
     public void flush() throws IOException {
       this.out.write(this.buffer, 0, this.pos);
-      this.pos = 0;
+      pos = 0;
     }
 
     private void ensureCapacity(int n) throws IOException {
-      if (BUFFER_SIZE - this.pos < n) this.flush();
+      if (BUFFER_SIZE - this.pos < n) flush();
     }
   }
 }

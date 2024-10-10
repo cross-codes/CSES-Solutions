@@ -1,27 +1,23 @@
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.InputMismatchException;
-import java.util.Random;
 
 public class SalaryQueries implements Runnable {
 
-  InputStream in;
-  StandardOutputWriter out;
-  private byte[] inbuf = new byte[1024];
-  public int lenbuf = 0, ptrbuf = 0;
+  InputReader in;
+  OutputWriter out;
 
   public static void main(String[] args) {
     new Thread(null, new SalaryQueries(), "", 256 * (1L << 20)).start();
   }
 
+  @Override
   public void run() {
     try {
-      in = System.in;
-      out = new StandardOutputWriter(System.out);
+      in = new InputReader(System.in);
+      out = new OutputWriter(System.out);
       solve();
       in.close();
       out.flush();
@@ -31,150 +27,8 @@ public class SalaryQueries implements Runnable {
     }
   }
 
-  int readByte() {
-    if (lenbuf == -1) throw new InputMismatchException();
-    if (ptrbuf >= lenbuf) {
-      ptrbuf = 0;
-      try {
-        lenbuf = in.read(inbuf);
-      } catch (IOException e) {
-        throw new InputMismatchException();
-      }
-      if (lenbuf <= 0) return -1;
-    }
-    return inbuf[ptrbuf++];
-  }
-
-  boolean isSpaceChar(int c) {
-    return !(c >= 33 && c <= 126);
-  }
-
-  int skip() {
-    int b;
-    while ((b = readByte()) != -1 && isSpaceChar(b))
-      ;
-    return b;
-  }
-
-  char rc() {
-    return (char) skip();
-  }
-
-  String rs() {
-    int b = skip();
-    StringBuilder sb = new StringBuilder();
-    while (!(isSpaceChar(b))) {
-      sb.appendCodePoint(b);
-      b = readByte();
-    }
-    return sb.toString();
-  }
-
-  char[] rs(int n) {
-    char[] buf = new char[n];
-    int b = skip(), p = 0;
-    while (p < n && !(isSpaceChar(b))) {
-      buf[p++] = (char) b;
-      b = readByte();
-    }
-    return n == p ? buf : Arrays.copyOf(buf, p);
-  }
-
-  int ri() {
-    return (int) rl();
-  }
-
-  long rl() {
-    long num = 0;
-    int b;
-    boolean minus = false;
-    while ((b = readByte()) != -1 && !((b >= '0' && b <= '9') || b == '-'))
-      ;
-    if (b == '-') {
-      minus = true;
-      b = readByte();
-    }
-
-    while (true) {
-      if (b >= '0' && b <= '9') {
-        num = num * 10 + (b - '0');
-      } else {
-        return minus ? -num : num;
-      }
-      b = readByte();
-    }
-  }
-
-  double rd() {
-    return Double.parseDouble(rs());
-  }
-
-  int[] ra(int n) {
-    int[] a = new int[n];
-    for (int i = 0; i < n; i++) a[i] = ri();
-    return a;
-  }
-
-  long[] ral(int n) {
-    long[] a = new long[n];
-    for (int i = 0; i < n; i++) a[i] = rl();
-    return a;
-  }
-
-  void solve() throws IOException {
-    int n = ri(), q = ri(), cnt = 0;
-    int[] salary = new int[n];
-
-    int[][] query = new int[q][3], compress = new int[n + (q << 1)][2];
-
-    for (int i = 0; i < n; i++) {
-      compress[i][0] = salary[i] = ri();
-      compress[i][1] = i;
-    }
-
-    for (int i = 0, j = n; i < q; ++i, j += 2) {
-      query[i][0] = '!' == rc() ? 1 : 2;
-      query[i][1] = ri();
-      query[i][2] = ri();
-      compress[j][0] = query[i][1];
-      compress[j][1] = j;
-      compress[j + 1][0] = query[i][2];
-      compress[j + 1][1] = j + 1;
-    }
-
-    qsort(compress, 0, compress.length - 1);
-
-    for (int i = 0, j = Integer.MIN_VALUE; i < compress.length; ++i) {
-      if (compress[i][0] != j) cnt++;
-      if (compress[i][1] < n) salary[compress[i][1]] = cnt;
-      else {
-        int p = (compress[i][1] - n) >> 1, r = 1 == ((compress[i][1] - n) & 1) ? 2 : 1;
-        if (1 == query[p][0] && 2 == r) query[p][2] = cnt;
-        else if (2 == query[p][0]) query[p][1 == ((compress[i][1] - n) & 1) ? 2 : 1] = cnt;
-      }
-      j = compress[i][0];
-    }
-
-    int[] bit = new int[cnt + 1];
-    for (int i : salary) add(bit, i, 1);
-    final StringBuilder sb = new StringBuilder(q);
-    for (int[] cmd : query) {
-      if (1 == cmd[0]) {
-        add(bit, salary[cmd[1] - 1], -1);
-        add(bit, cmd[2], 1);
-        salary[cmd[1] - 1] = cmd[2];
-      } else {
-        sb.append(get(bit, cmd[2]) - get(bit, cmd[1] - 1)).append("\n");
-      }
-    }
-
-    out.print(sb.toString());
-  }
-
-  private static Random rand = new Random();
-
   private static void qsort(int[][] nums, int i, int j) {
-    int pivot = i + rand.nextInt(j - i + 1), small = i - 1;
+    int pivot = i + Random.nextInt(j - i + 1), small = i - 1;
     swap(nums, pivot, j);
     for (int p = i; p < j; ++p) {
       if (nums[p][0] <= nums[j][0]) swap(nums, ++small, p);
@@ -208,292 +62,290 @@ public class SalaryQueries implements Runnable {
     }
   }
 
-  static class StandardOutputWriter {
-    private static final int BUFFER_SIZE = 1 << 16;
-    private final byte[] buf = new byte[BUFFER_SIZE];
+  void solve() throws IOException {
+    int n = in.nextInt(), q = in.nextInt(), cnt = 0;
+    int[] salary = new int[n];
+
+    int[][] query = new int[q][3], compress = new int[n + (q << 1)][2];
+
+    for (int i = 0; i < n; i++) {
+      compress[i][0] = salary[i] = in.nextInt();
+      compress[i][1] = i;
+    }
+
+    for (int i = 0, j = n; i < q; ++i, j += 2) {
+      query[i][0] = '!' == in.nextCharacter() ? 1 : 2;
+      query[i][1] = in.nextInt();
+      query[i][2] = in.nextInt();
+      compress[j][0] = query[i][1];
+      compress[j][1] = j;
+      compress[j + 1][0] = query[i][2];
+      compress[j + 1][1] = j + 1;
+    }
+
+    qsort(compress, 0, compress.length - 1);
+
+    for (int i = 0, j = Integer.MIN_VALUE; i < compress.length; ++i) {
+      if (compress[i][0] != j) cnt++;
+      if (compress[i][1] < n) salary[compress[i][1]] = cnt;
+      else {
+        int p = (compress[i][1] - n) >> 1, r = 1 == ((compress[i][1] - n) & 1) ? 2 : 1;
+        if (1 == query[p][0] && 2 == r) query[p][2] = cnt;
+        else if (2 == query[p][0]) query[p][1 == ((compress[i][1] - n) & 1) ? 2 : 1] = cnt;
+      }
+      j = compress[i][0];
+    }
+
+    int[] bit = new int[cnt + 1];
+    for (int i : salary) add(bit, i, 1);
+    for (int[] cmd : query) {
+      if (1 == cmd[0]) {
+        add(bit, salary[cmd[1] - 1], -1);
+        add(bit, cmd[2], 1);
+        salary[cmd[1] - 1] = cmd[2];
+      } else {
+        out.append(get(bit, cmd[2]) - get(bit, cmd[1] - 1)).appendNewLine();
+      }
+    }
+  }
+
+  static class Random {
+    private static long seed = System.nanoTime() ^ 8682522807148012L;
+
+    private Random() {}
+
+    public static void nextBytes(byte[] bytes) {
+      for (int i = 0, len = bytes.length; i < len; ) {
+        for (int rnd = nextInt(), n = Math.min(len - i, Integer.SIZE / Byte.SIZE);
+            n-- > 0;
+            rnd >>= Byte.SIZE) bytes[i++] = (byte) rnd;
+      }
+    }
+
+    public static int nextInt() {
+      return next(32);
+    }
+
+    public static int nextInt(int bound) {
+      int r = next(31);
+      int m = bound - 1;
+      if ((bound & m) == 0) r = (int) (bound * (long) r >> 31);
+      else
+        for (int u = r; u - (r = u % bound) + m < 0; u = next(31))
+          ;
+      return r;
+    }
+
+    public static long nextLong() {
+      return (long) next(32) << 32 | next(32);
+    }
+
+    public static boolean nextBoolean() {
+      return next(1) != 0;
+    }
+
+    public static float nextFloat() {
+      return next(24) / (float) (1 << 24);
+    }
+
+    public static double nextDouble() {
+      return ((long) next(26) << 27 | next(27)) * 0x1.0p-53;
+    }
+
+    private static int next(int bits) {
+      seed = seed * 0x5DEECE66DL + 0xBL & 0xFFFFFFFFFFFFL;
+      return (int) (seed >>> 48 - bits);
+    }
+  }
+
+  @FunctionalInterface
+  static interface Procedure {
+    void run();
+  }
+
+  static class InputReader {
+    private static final int BUFFER_SIZE = 1 << 13;
+    private final InputStream in;
+    private byte[] inbuf;
+    private int lenbuf;
+    private int ptrbuf;
+
+    public InputReader(InputStream is) {
+      this.in = is;
+      this.inbuf = new byte[BUFFER_SIZE];
+      this.lenbuf = 0;
+      this.ptrbuf = 0;
+    }
+
+    public void close() throws IOException {
+      this.in.close();
+    }
+
+    private int readByte() {
+      if (this.lenbuf == -1) throw new InputMismatchException();
+      if (this.ptrbuf >= this.lenbuf) {
+        this.ptrbuf = 0;
+        try {
+          this.lenbuf = this.in.read(this.inbuf);
+        } catch (IOException e) {
+          throw new InputMismatchException();
+        }
+        if (this.lenbuf <= 0) return -1;
+      }
+      return this.inbuf[this.ptrbuf++];
+    }
+
+    private boolean isSpaceChar(int c) {
+      return !(c >= 33 && c <= 126);
+    }
+
+    private int skip() {
+      int b;
+      while ((b = this.readByte()) != -1 && this.isSpaceChar(b))
+        ;
+      return b;
+    }
+
+    public char nextCharacter() {
+      return (char) this.skip();
+    }
+
+    public String nextLine() {
+      int b = this.skip();
+      StringBuilder sb = new StringBuilder();
+      while (!(this.isSpaceChar(b))) {
+        sb.appendCodePoint(b);
+        b = this.readByte();
+      }
+      return sb.toString();
+    }
+
+    public long nextLong() {
+      long num = 0;
+      int b;
+      boolean minus = false;
+      while ((b = this.readByte()) != -1 && !((b >= '0' && b <= '9') || b == '-'))
+        ;
+      if (b == '-') {
+        minus = true;
+        b = this.readByte();
+      }
+
+      while (true) {
+        if (b >= '0' && b <= '9') {
+          num = num * 10 + (b - '0');
+        } else {
+          return minus ? -num : num;
+        }
+        b = this.readByte();
+      }
+    }
+
+    public int nextInt() {
+      return (int) this.nextLong();
+    }
+
+    public double nextDouble() {
+      return Double.parseDouble(this.nextLine());
+    }
+
+    public int[] readIntegerArray(int n) {
+      int[] a = new int[n];
+      for (int i = 0; i < n; i++) a[i] = nextInt();
+      return a;
+    }
+
+    public long[] readLongArray(int n) {
+      long[] a = new long[n];
+      for (int i = 0; i < n; i++) a[i] = nextLong();
+      return a;
+    }
+
+    public char[] readCharacterArray(int n) {
+      char[] buf = new char[n];
+      int b = this.skip(), p = 0;
+      while (p < n && !(this.isSpaceChar(b))) {
+        buf[p++] = (char) b;
+        b = this.readByte();
+      }
+      return n == p ? buf : Arrays.copyOf(buf, p);
+    }
+  }
+
+  static class OutputWriter {
+
+    private static final int BUFFER_SIZE = 1048576;
+    private final byte[] buffer;
     private final OutputStream out;
-    private int ptr = 0;
+    private int pos;
 
-    public StandardOutputWriter(OutputStream os) {
+    public OutputWriter(OutputStream os) {
       this.out = os;
+      this.buffer = new byte[BUFFER_SIZE];
     }
 
-    public StandardOutputWriter(String path) {
-      try {
-        this.out = new FileOutputStream(path);
-      } catch (FileNotFoundException e) {
-        throw new RuntimeException("StandardOutputWriter");
-      }
-    }
-
-    public StandardOutputWriter write(byte b) {
-      buf[ptr++] = b;
-      if (ptr == BUFFER_SIZE) innerflush();
+    public OutputWriter append(String s) throws IOException {
+      int length = s.length();
+      this.ensureCapacity(length);
+      for (int i = 0; i < length; i++) this.buffer[this.pos++] = (byte) s.charAt(i);
       return this;
     }
 
-    public StandardOutputWriter write(char c) {
-      return write((byte) c);
-    }
-
-    public StandardOutputWriter write(char[] s) {
-      for (char c : s) {
-        buf[ptr++] = (byte) c;
-        if (ptr == BUFFER_SIZE) innerflush();
+    public OutputWriter append(byte[] bytes) throws IOException {
+      if (BUFFER_SIZE - this.pos < bytes.length) {
+        this.flush();
+        if (bytes.length > BUFFER_SIZE) {
+          this.out.write(bytes, 0, bytes.length);
+          return this;
+        }
       }
+      for (byte b : bytes) this.buffer[this.pos++] = b;
       return this;
     }
 
-    public StandardOutputWriter write(String s) {
-      s.chars()
-          .forEach(
-              c -> {
-                buf[ptr++] = (byte) c;
-                if (ptr == BUFFER_SIZE) innerflush();
-              });
+    public OutputWriter append(byte[] bytes, int from, int to) throws IOException {
+      int length = to - from;
+      if (BUFFER_SIZE - this.pos < length) {
+        this.flush();
+        if (length > BUFFER_SIZE) {
+          this.out.write(bytes, from, length);
+          return this;
+        }
+      }
+      for (int i = from; i < to; i++) this.buffer[this.pos++] = bytes[i];
       return this;
     }
 
-    private static int countDigits(int l) {
-      if (l >= 1000000000) return 10;
-      if (l >= 100000000) return 9;
-      if (l >= 10000000) return 8;
-      if (l >= 1000000) return 7;
-      if (l >= 100000) return 6;
-      if (l >= 10000) return 5;
-      if (l >= 1000) return 4;
-      if (l >= 100) return 3;
-      if (l >= 10) return 2;
-      return 1;
-    }
-
-    public StandardOutputWriter write(int x) {
-      if (x == Integer.MIN_VALUE) {
-        return write((long) x);
-      }
-      if (ptr + 12 >= BUFFER_SIZE) innerflush();
-      if (x < 0) {
-        write((byte) '-');
-        x = -x;
-      }
-      int d = countDigits(x);
-      for (int i = ptr + d - 1; i >= ptr; i--) {
-        buf[i] = (byte) ('0' + x % 10);
-        x /= 10;
-      }
-      ptr += d;
+    public OutputWriter append(char c) throws IOException {
+      this.ensureCapacity(1);
+      this.buffer[this.pos++] = (byte) c;
       return this;
     }
 
-    private static int countDigits(long l) {
-      if (l >= 1000000000000000000L) return 19;
-      if (l >= 100000000000000000L) return 18;
-      if (l >= 10000000000000000L) return 17;
-      if (l >= 1000000000000000L) return 16;
-      if (l >= 100000000000000L) return 15;
-      if (l >= 10000000000000L) return 14;
-      if (l >= 1000000000000L) return 13;
-      if (l >= 100000000000L) return 12;
-      if (l >= 10000000000L) return 11;
-      if (l >= 1000000000L) return 10;
-      if (l >= 100000000L) return 9;
-      if (l >= 10000000L) return 8;
-      if (l >= 1000000L) return 7;
-      if (l >= 100000L) return 6;
-      if (l >= 10000L) return 5;
-      if (l >= 1000L) return 4;
-      if (l >= 100L) return 3;
-      if (l >= 10L) return 2;
-      return 1;
+    public OutputWriter append(int i) throws IOException {
+      return this.append(Integer.toString(i));
     }
 
-    public StandardOutputWriter write(long x) {
-      if (x == Long.MIN_VALUE) {
-        return write("" + x);
-      }
-      if (ptr + 21 >= BUFFER_SIZE) innerflush();
-      if (x < 0) {
-        write((byte) '-');
-        x = -x;
-      }
-      int d = countDigits(x);
-      for (int i = ptr + d - 1; i >= ptr; i--) {
-        buf[i] = (byte) ('0' + x % 10);
-        x /= 10;
-      }
-      ptr += d;
-      return this;
+    public OutputWriter append(long l) throws IOException {
+      return this.append(Long.toString(l));
     }
 
-    public StandardOutputWriter write(double x, int precision) {
-      if (x < 0) {
-        write('-');
-        x = -x;
-      }
-      x += Math.pow(10, -precision) / 2;
-      write((long) x).write(".");
-      x -= (long) x;
-      for (int i = 0; i < precision; i++) {
-        x *= 10;
-        write((char) ('0' + (int) x));
-        x -= (int) x;
-      }
-      return this;
+    public OutputWriter append(double d) throws IOException {
+      return this.append(Double.toString(d));
     }
 
-    public StandardOutputWriter writeln(char c) {
-      return write(c).writeln();
+    public void appendNewLine() throws IOException {
+      this.ensureCapacity(1);
+      this.buffer[this.pos++] = '\n';
     }
 
-    public StandardOutputWriter writeln(int x) {
-      return write(x).writeln();
+    public void flush() throws IOException {
+      this.out.write(this.buffer, 0, this.pos);
+      this.pos = 0;
     }
 
-    public StandardOutputWriter writeln(long x) {
-      return write(x).writeln();
-    }
-
-    public StandardOutputWriter writeln(double x, int precision) {
-      return write(x, precision).writeln();
-    }
-
-    public StandardOutputWriter write(int... xs) {
-      boolean first = true;
-      for (int x : xs) {
-        if (!first) write(' ');
-        first = false;
-        write(x);
-      }
-      return this;
-    }
-
-    public StandardOutputWriter write(long... xs) {
-      boolean first = true;
-      for (long x : xs) {
-        if (!first) write(' ');
-        first = false;
-        write(x);
-      }
-      return this;
-    }
-
-    public StandardOutputWriter writeln() {
-      return write((byte) '\n');
-    }
-
-    public StandardOutputWriter writeln(int... xs) {
-      return write(xs).writeln();
-    }
-
-    public StandardOutputWriter writeln(long... xs) {
-      return write(xs).writeln();
-    }
-
-    public StandardOutputWriter writeln(char[] line) {
-      return write(line).writeln();
-    }
-
-    public StandardOutputWriter writeln(char[]... map) {
-      for (char[] line : map) write(line).writeln();
-      return this;
-    }
-
-    public StandardOutputWriter writeln(String s) {
-      return write(s).writeln();
-    }
-
-    private void innerflush() {
-      try {
-        out.write(buf, 0, ptr);
-        ptr = 0;
-      } catch (IOException e) {
-        throw new RuntimeException("innerflush");
-      }
-    }
-
-    public void flush() {
-      innerflush();
-      try {
-        out.flush();
-      } catch (IOException e) {
-        throw new RuntimeException("flush");
-      }
-    }
-
-    public StandardOutputWriter print(byte b) {
-      return write(b);
-    }
-
-    public StandardOutputWriter print(char c) {
-      return write(c);
-    }
-
-    public StandardOutputWriter print(char[] s) {
-      return write(s);
-    }
-
-    public StandardOutputWriter print(String s) {
-      return write(s);
-    }
-
-    public StandardOutputWriter print(int x) {
-      return write(x);
-    }
-
-    public StandardOutputWriter print(long x) {
-      return write(x);
-    }
-
-    public StandardOutputWriter print(double x, int precision) {
-      return write(x, precision);
-    }
-
-    public StandardOutputWriter println(char c) {
-      return writeln(c);
-    }
-
-    public StandardOutputWriter println(int x) {
-      return writeln(x);
-    }
-
-    public StandardOutputWriter println(long x) {
-      return writeln(x);
-    }
-
-    public StandardOutputWriter println(double x, int precision) {
-      return writeln(x, precision);
-    }
-
-    public StandardOutputWriter print(int... xs) {
-      return write(xs);
-    }
-
-    public StandardOutputWriter print(long... xs) {
-      return write(xs);
-    }
-
-    public StandardOutputWriter println(int... xs) {
-      return writeln(xs);
-    }
-
-    public StandardOutputWriter println(long... xs) {
-      return writeln(xs);
-    }
-
-    public StandardOutputWriter println(char[] line) {
-      return writeln(line);
-    }
-
-    public StandardOutputWriter println(char[]... map) {
-      return writeln(map);
-    }
-
-    public StandardOutputWriter println(String s) {
-      return writeln(s);
-    }
-
-    public StandardOutputWriter println() {
-      return writeln();
+    private void ensureCapacity(int n) throws IOException {
+      if (BUFFER_SIZE - this.pos < n) this.flush();
     }
   }
 }
